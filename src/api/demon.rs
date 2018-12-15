@@ -46,7 +46,7 @@ pub fn post(req: &HttpRequest<PointercrateState>) -> impl Responder {
         .responder()
 }
 
-/// `GET /api/v1/demons/[id]/` handler
+/// `GET /api/v1/demons/[id]` handler
 pub fn get(req: &HttpRequest<PointercrateState>) -> impl Responder {
     info!("GET /api/v1/records/{{record_id}}/");
 
@@ -59,3 +59,4 @@ pub fn get(req: &HttpRequest<PointercrateState>) -> impl Responder {
         .map(|demon: Demon| HttpResponse::Ok().json_with_etag(demon))
         .responder()
 }
+

@@ -146,6 +146,7 @@ type AllColumns = (
     records::submitter,
     demons::name,
     demons::position,
+    demons::version,
 );
 
 const ALL_COLUMNS: AllColumns = (
@@ -159,6 +160,7 @@ const ALL_COLUMNS: AllColumns = (
     records::submitter,
     demons::name,
     demons::position,
+    demons::version,
 );
 
 type SqlType = (
@@ -283,6 +285,7 @@ impl Queryable<SqlType, Pg> for Record {
             demon: PartialDemon {
                 name: row.8,
                 position: row.9,
+                version: row.10,
             },
         }
     }

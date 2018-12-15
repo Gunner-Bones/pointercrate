@@ -29,3 +29,17 @@ impl Get<i16> for Demon {
         }
     }
 }
+
+impl Get<i16, i16>(pos: i16, ver: i16) for Demon {
+    fn get(pos: pos, connection: &PgConnection) -> Result<Self> {
+        match Demon::by_position(pos).filter(demons::version.eq(ver).first(connection)) {
+            Ok(demon) => Ok(demon),
+            Err(Error::NotFound) =>
+                Err(PointercrateError::ModelNotFound {
+                    model: "Demon",
+                    identified_by: format!("{},{}",pos.to_string(),ver.to_string()),
+                }),
+            Err(err) => Err(PointercrateError::database(err)),
+        }
+    }
+}

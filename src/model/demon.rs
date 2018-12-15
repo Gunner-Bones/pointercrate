@@ -47,6 +47,9 @@ pub struct Demon {
 
     /// The player-ID of this [`Demon`]'s publisher
     pub publisher: i32,
+
+    /// The version of this [`Demon`]
+    pub version: i16
 }
 
 /// Struct modelling a minimal representation of a [`Demon`] in the database
@@ -59,6 +62,7 @@ pub struct Demon {
 pub struct PartialDemon {
     pub name: String,
     pub position: i16,
+    pub version: i16,
 }
 
 impl Serialize for PartialDemon {
@@ -70,6 +74,7 @@ impl Serialize for PartialDemon {
         map.serialize_entry("name", &self.name)?;
         map.serialize_entry("position", &self.position)?;
         map.serialize_entry("state", &ListState::from(self.position).to_string())?;
+        map.serialize_entry("version", &self.version)?;
         map.end()
     }
 }
@@ -122,6 +127,7 @@ type AllColumns = (
     demons::notes,
     demons::verifier,
     demons::publisher,
+    demons::version,
 );
 
 const ALL_COLUMNS: AllColumns = (
@@ -133,6 +139,7 @@ const ALL_COLUMNS: AllColumns = (
     demons::notes,
     demons::verifier,
     demons::publisher,
+    demons::version,
 );
 
 type All = diesel::dsl::Select<demons::table, AllColumns>;
@@ -142,6 +149,11 @@ type ByName<'a> = diesel::dsl::Filter<All, WithName<'a>>;
 
 type WithPosition = diesel::dsl::Eq<demons::position, Bound<sql_types::Int2, i16>>;
 type ByPosition = diesel::dsl::Filter<All, WithPosition>;
+
+type WithVersion = diesel::dsl::Eq<demons::version, Bound<sql_types::Int2, i16>>;
+type ByVersion = diesel::dsl::Filter<All, WithVersion>;
+
+
 
 impl Demon {
     fn all() -> All {
@@ -157,6 +169,10 @@ impl Demon {
     /// Constructs a diesel query returning all columns of position whose name matches the given i16
     pub fn by_position(position: i16) -> ByPosition {
         Demon::all().filter(demons::position.eq(position))
+    }
+
+    pub fn by_version(version: i16) -> ByVersion {
+        Demon::all().filter(demons::version.eq(version))
     }
 
     /// Increments the position of all demons with positions equal to or greater than the given one,
@@ -181,8 +197,8 @@ impl Demon {
 }
 
 impl PartialDemon {
-    fn all() -> diesel::dsl::Select<demons::table, (demons::name, demons::position)> {
-        demons::table.select((demons::name, demons::position))
+    fn all() -> diesel::dsl::Select<demons::table, (demons::name, demons::position, demons::version)> {
+        demons::table.select((demons::name, demons::position, demons::version))
     }
 }
 
@@ -191,6 +207,7 @@ impl Into<PartialDemon> for Demon {
         PartialDemon {
             name: self.name,
             position: self.position,
+            version: self.version
         }
     }
 }
