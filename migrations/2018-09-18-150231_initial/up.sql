@@ -55,6 +55,19 @@ CREATE TABLE records (
     UNIQUE (demon, player, status_)
 );
 
+CREATE FUNCTION IF NOT EXISTS list_points(
+    demon_pos SMALLINT NOT NULL,
+    progress SMALLINT NOT NULL,
+    list_length SMALLINT NOT NULL,
+) RETURNS FLOAT AS $$
+BEGIN
+    SELECT (list_length / ((list_length / 5.0) + ((-list_length / 5.0) + 1.0) * EXP(-0.008*demon_pos))) AS points_value
+    IF (progress < 1) THEN
+        points_value *= (progress / 2.0)
+    END IF;
+    RETURN points_value;
+END;
+
 CREATE TABLE creators (
     demon CITEXT NOT NULL REFERENCES demons(name) ON DELETE RESTRICT ON UPDATE CASCADE,
     creator INT NOT NULL REFERENCES players(id) ON DELETE RESTRICT ON UPDATE CASCADE,
